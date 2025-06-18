@@ -55,14 +55,17 @@ const CheckoutPage: React.FC = () => {
     setLoadingMessage("Processando seu pedido...");
 
     try {
-      const response = await axios.post("http://localhost:8000/api/orders", {
-        customer_name: customerName,
-        delivery_date: deliveryDate,
-        items: items.map((item: any) => ({
-          product_id: item.id,
-          quantity: item.quantity,
-        })),
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/orders`,
+        {
+          customer_name: customerName,
+          delivery_date: deliveryDate,
+          items: items.map((item: any) => ({
+            product_id: item.id,
+            quantity: item.quantity,
+          })),
+        }
+      );
 
       // Preparar dados para a página de sucesso
       const orderData = {

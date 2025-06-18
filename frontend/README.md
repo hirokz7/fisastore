@@ -1,89 +1,103 @@
-# Fisa Store - Frontend
+# Frontend - Fisa Store
 
-Este é o frontend do sistema de pedidos do Fisa Store, desenvolvido com React, TypeScript e Material-UI.
+## 🛠️ Tecnologias Utilizadas
 
-## Tecnologias Utilizadas
+- **React 18**
+- **TypeScript 4.9+**
+- **Material-UI (MUI) 5**
+- **Zustand** (Gerenciamento de estado)
+- **React Router DOM 6**
+- **Axios** (Cliente HTTP)
+- **Vite** (Build tool)
 
-- React
-- TypeScript
-- Material-UI
-- React Hook Form
-- Yup
-- Zustand
-- Axios
+## 🚀 Como Executar
 
-## Funcionalidades
+### Pré-requisitos
 
-- Formulário de cadastro de pedidos
-- Seleção de cliente
-- Data de entrega
-- Lista de produtos com quantidade
-- Cálculo automático do valor total
-- Validação de formulários
-- Integração com API REST
-
-## Pré-requisitos
-
-- Node.js (versão 14 ou superior)
+- Node.js 16+
 - npm ou yarn
-- Backend do Fisa Store rodando na porta 8000
+- **Backend rodando** na porta 8000
 
-## Instalação
+### Instalação
 
-1. Clone o repositório
-2. Navegue até a pasta do projeto:
-
-```bash
-cd frontend
-```
-
-3. Instale as dependências:
+1. **Instalar dependências:**
 
 ```bash
 npm install
 ```
 
-4. Inicie o servidor de desenvolvimento:
+2. **Configurar variáveis de ambiente:**
+
+```bash
+cp .env.example .env
+```
+
+3. **Editar o arquivo `.env`:**
+
+```env
+# API Configuration
+REACT_APP_API_URL=http://localhost:8000/api
+
+# Environment
+REACT_APP_ENV=development
+```
+
+### Executando o Projeto
 
 ```bash
 npm start
 ```
 
-O aplicativo estará disponível em `http://localhost:3000`
+O servidor de desenvolvimento estará disponível em: `http://localhost:3000`
 
-## Estrutura do Projeto
+### Build para Produção
 
-```
-src/
-  ├── components/     # Componentes React
-  ├── services/      # Serviços de API
-  ├── store/         # Gerenciamento de estado (Zustand)
-  ├── types/         # Definições de tipos TypeScript
-  └── App.tsx        # Componente principal
+```bash
+npm run build
 ```
 
-## Decisões de Design
+## 📁 Estrutura do Projeto
 
-- Utilização do Material-UI para uma interface moderna e responsiva
-- Cores da marca (verde #CBE504) aplicadas consistentemente
-- Formulário intuitivo com validação em tempo real
-- Gerenciamento de estado centralizado com Zustand
-- Tipagem forte com TypeScript para maior segurança
-- Validação de formulários com Yup e React Hook Form
+```
+frontend/src/
+├── features/              # Arquitetura baseada em features
+│   ├── products/         # Feature de produtos
+│   ├── checkout/         # Feature de checkout
+│   ├── order-success/    # Feature de sucesso do pedido
+│   └── orders/           # Feature de pedidos
+├── shared/               # Recursos compartilhados
+│   ├── components/       # Componentes reutilizáveis
+│   ├── services/         # Serviços da API
+│   ├── hooks/            # Hooks customizados
+│   ├── types/            # Definições de tipos
+│   ├── config/           # Configurações
+│   ├── constants/        # Constantes
+│   └── utils/            # Utilitários
+├── store/                # Estado global (Zustand)
+├── contexts/             # Contextos React
+└── routes/               # Configuração de rotas
+```
 
-## Integração com Backend
+## 🎯 Funcionalidades
 
-O frontend se comunica com o backend através de uma API REST, utilizando Axios para as requisições HTTP. As principais operações incluem:
+- **Listagem de Produtos** com paginação
+- **Carrinho de Compras** com sidebar
+- **Checkout** com formulário de pedido
+- **Página de Sucesso** após finalizar pedido
+- **Responsivo** para mobile e desktop
+- **Loading States** e feedback visual
+- **Validação de Formulários**
 
-- Listagem de clientes
-- Listagem de produtos
-- Criação de pedidos
-- Atualização de estoque
+## 🔧 Scripts Disponíveis
 
-## Contribuição
+- `npm start` - Inicia o servidor de desenvolvimento
+- `npm run build` - Gera build de produção
+- `npm test` - Executa os testes
+- `npm run eject` - Ejecta do Create React App
 
-1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
-5. Abra um Pull Request
+## 🌍 Variáveis de Ambiente
+
+| Variável            | Descrição             | Padrão                      |
+| ------------------- | --------------------- | --------------------------- |
+| `REACT_APP_API_URL` | URL da API do backend | `http://localhost:8000/api` |
+| `REACT_APP_ENV`     | Ambiente da aplicação | `development`               |

@@ -1,79 +1,77 @@
-# Backend - Sistema de Pedidos
+# Backend - Fisa Store
 
-Este é o backend do sistema de pedidos, desenvolvido em Laravel com arquitetura MVC.
+## 🛠️ Tecnologias Utilizadas
 
-## Requisitos
+-   **PHP 8.1+**
+-   **Laravel 10**
+-   **MySQL 8.0**
+-   **Composer** (Gerenciador de dependências)
+-   **Artisan** (CLI do Laravel)
+
+## 🚀 Como Executar
+
+### Pré-requisitos
 
 -   PHP 8.1 ou superior
--   Composer
--   PostgreSQL
--   Extensões PHP necessárias:
-    -   pdo_pgsql
-    -   pgsql
-    -   fileinfo
-    -   openssl
-    -   mbstring
-    -   zip
-    -   intl
+-   Composer instalado
+-   MySQL 8.0 ou superior
+-   Node.js (para compilar assets)
 
-## Instalação
+### Instalação
 
-1. Clone o repositório
-2. Entre na pasta do projeto:
-    ```bash
-    cd backend
-    ```
-3. Instale as dependências:
-    ```bash
-    composer install
-    ```
-4. Copie o arquivo .env.example para .env:
-    ```bash
-    cp .env.example .env
-    ```
-5. Configure as variáveis de ambiente no arquivo .env:
-    ```
-    DB_CONNECTION=pgsql
-    DB_HOST=ep-cool-recipe-a51s0ur2-pooler.us-east-2.aws.neon.tech
-    DB_PORT=5432
-    DB_DATABASE=neondb
-    DB_USERNAME=neondb_owner
-    DB_PASSWORD=npg_zxZmFqy73KWk
-    DB_SSL_MODE=require
-    ```
-6. Gere a chave da aplicação:
-    ```bash
-    php artisan key:generate
-    ```
+1. **Instalar dependências:**
 
-## Executando o Projeto
+```bash
+composer install
+```
 
-1. Inicie o servidor de desenvolvimento:
-    ```bash
-    php artisan serve
-    ```
-2. O servidor estará disponível em `http://localhost:8000`
+2. **Configurar variáveis de ambiente:**
 
-## Endpoints da API
+```bash
+cp .env.example .env
+```
 
-### Produtos
+3. **Configurar banco de dados no arquivo `.env`:**
 
--   `GET /api/produtos` - Lista todos os produtos
--   `GET /api/produtos/{id}` - Obtém detalhes de um produto
--   `PUT /api/produtos/{id}` - Atualiza um produto
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=fisacorp
+DB_USERNAME=root
+DB_PASSWORD=sua_senha
+```
 
-### Pedidos
+### Executando o Servidor
 
--   `POST /api/pedidos` - Cria um novo pedido
--   `PUT /api/pedidos/{id}` - Atualiza um pedido
--   `DELETE /api/pedidos/{id}` - Remove um pedido
+```bash
+php artisan serve
+```
 
-## Estrutura do Projeto
+O servidor estará disponível em: `http://localhost:8000`
 
--   `app/Models/` - Modelos do Eloquent ORM
--   `app/Http/Controllers/` - Controllers da aplicação
--   `routes/api.php` - Rotas da API
--   `database/migrations/` - Migrações do banco de dados
+### Endpoints da API
+
+-   `GET /api/products` - Listar produtos (com paginação)
+-   `POST /api/orders` - Criar pedido
+-   `GET /api/orders` - Listar pedidos
+-   `GET /api/customers` - Listar clientes
+
+## 📁 Estrutura do Projeto
+
+```
+backend/
+├── app/
+│   ├── Http/Controllers/    # Controladores da API
+│   ├── Models/             # Modelos Eloquent
+│   └── Http/Middleware/    # Middlewares
+├── database/
+│   ├── migrations/         # Migrações do banco
+│   └── seeders/           # Seeders para dados iniciais
+├── routes/
+│   └── api.php            # Rotas da API
+└── config/                # Configurações
+```
 
 ## Funcionalidades Implementadas
 
