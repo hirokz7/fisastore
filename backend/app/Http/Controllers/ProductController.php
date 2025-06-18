@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
@@ -14,31 +14,37 @@ class ProductController extends Controller
             $page = $request->query('page', 1);
             $perPage = $request->query('per_page', 20);
             
-            $products = Product::select('id', 'name', 'price', 'qty_stock')
-                ->orderBy('name', 'asc') // Ordenação alfabética
-                ->paginate($perPage, ['*'], 'page', $page);
+            $cacheKey = "products_page_{$page}_per_{$perPage}";
+            $response = null;
+            try {
+                $cachedResult = Cache::get($cacheKey);
+                if ($cachedResult) {
+                    $response = $cachedResult;
+                }
+            } catch (\Throwable $e) {}
             
-            Log::info('Produtos listados', [
-                'page' => $page,
-                'per_page' => $perPage,
-                'total' => $products->total()
-            ]);
-            
-            return response()->json([
-                'data' => $products->items(),
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'per_page' => $products->perPage(),
-                'total' => $products->total()
-            ]);
-            
+            if (!$response) {
+                $products = Product::select('id', 'name', 'price', 'qty_stock')
+                    ->orderBy('name', 'asc')
+                    ->paginate($perPage, ['*'], 'page', $page);
+                $response = [
+                    'data' => $products->items(),
+                    'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
+                    'per_page' => $products->perPage(),
+                    'total' => $products->total()
+                ];
+                try {
+                    Cache::put($cacheKey, $response, 300);
+                } catch (\Throwable $e) {}
+            }
+            return response()->json($response);
         } catch (\Exception $e) {
-            Log::error('Erro ao listar produtos', [
+            \Log::error('Erro ao listar produtos', [
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
             ]);
-            
             return response()->json([
                 'error' => 'Erro interno do servidor',
                 'message' => 'Não foi possível listar os produtos'
@@ -49,16 +55,19 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         try {
-            Log::info('Produto consultado', ['product_id' => $product->id]);
-            
-            return response()->json($product);
-            
+            $cacheKey = "product_{$product->id}";
+            $cachedProduct = Cache::get($cacheKey);
+            if ($cachedProduct) {
+                return response()->json($cachedProduct);
+            }
+            $productData = $product->toArray();
+            Cache::put($cacheKey, $productData, 600);
+            return response()->json($productData);
         } catch (\Exception $e) {
-            Log::error('Erro ao consultar produto', [
+            \Log::error('Erro ao consultar produto', [
                 'product_id' => $product->id ?? 'N/A',
                 'error' => $e->getMessage()
             ]);
-            
             return response()->json([
                 'error' => 'Erro interno do servidor',
                 'message' => 'Não foi possível consultar o produto'
@@ -73,38 +82,28 @@ class ProductController extends Controller
                 'price' => 'required|numeric|min:0',
                 'qty_stock' => 'required|integer|min:0'
             ]);
-
-            $oldPrice = $product->price;
-            $oldStock = $product->qty_stock;
-            
             $product->update($validated);
-            
-            Log::info('Produto atualizado', [
-                'product_id' => $product->id,
-                'name' => $product->name,
-                'old_price' => $oldPrice,
-                'new_price' => $product->price,
-                'old_stock' => $oldStock,
-                'new_stock' => $product->qty_stock
-            ]);
-            
+            $this->invalidateProductCache($product->id);
             return response()->json([
                 'message' => 'Produto atualizado com sucesso',
                 'product' => $product
             ]);
-            
         } catch (\Exception $e) {
-            Log::error('Erro ao atualizar produto', [
+            \Log::error('Erro ao atualizar produto', [
                 'product_id' => $product->id ?? 'N/A',
                 'error' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine()
             ]);
-            
             return response()->json([
                 'error' => 'Erro interno do servidor',
                 'message' => 'Não foi possível atualizar o produto'
             ], 500);
         }
+    }
+    
+    private function invalidateProductCache($productId)
+    {
+        Cache::forget("product_{$productId}");
     }
 } 

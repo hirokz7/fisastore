@@ -15,4 +15,3 @@ Route::get('/orders/{order}', [OrderController::class, 'show']);
 Route::post('/orders', [OrderController::class, 'store']);
 Route::put('/orders/{order}', [OrderController::class, 'update']);
 Route::delete('/orders/{order}', [OrderController::class, 'destroy']); 
-Route::post('/test-insert-customer', [OrderController::class, 'testInsertCustomer']);
