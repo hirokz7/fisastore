@@ -101,7 +101,7 @@ frontend/src/
 #### 1. **Clone o Repositório**
 
 ```bash
-git clone <url-do-repositorio>
+git clone [<url-do-repositorio>](https://github.com/hirokz7/fisastore)
 cd fisacorp
 ```
 
