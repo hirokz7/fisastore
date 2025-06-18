@@ -16,20 +16,16 @@ class CacheMiddleware
      */
     public function handle(Request $request, Closure $next, $ttl = 300): Response
     {
-        // Só aplicar cache em requisições GET
         if ($request->isMethod('GET')) {
             $cacheKey = $this->generateCacheKey($request);
             
-            // Tentar buscar do cache
             if (Cache::has($cacheKey)) {
                 $cachedResponse = Cache::get($cacheKey);
                 return response()->json($cachedResponse);
             }
             
-            // Se não estiver em cache, processar normalmente
             $response = $next($request);
             
-            // Salvar resposta no cache se for bem-sucedida
             if ($response->getStatusCode() === 200) {
                 $responseData = json_decode($response->getContent(), true);
                 Cache::put($cacheKey, $responseData, $ttl);
@@ -40,15 +36,12 @@ class CacheMiddleware
         
         return $next($request);
     }
-    
-    /**
-     * Gerar chave única para o cache baseada na requisição
-     */
+
     private function generateCacheKey(Request $request): string
     {
         $url = $request->url();
         $queryParams = $request->query();
-        ksort($queryParams); // Ordenar parâmetros para consistência
+        ksort($queryParams); 
         
         $queryString = http_build_query($queryParams);
         
