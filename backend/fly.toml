@@ -1,0 +1,27 @@
+app = "fisa-store-backend"
+primary_region = "gru"
+
+[build]
+
+[env]
+  APP_ENV = "production"
+  APP_DEBUG = "false"
+  LOG_CHANNEL = "stack"
+  CACHE_DRIVER = "file"
+  SESSION_DRIVER = "file"
+  QUEUE_CONNECTION = "sync"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[http_service.checks]]
+  grace_period = "10s"
+  interval = "30s"
+  method = "GET"
+  timeout = "5s"
+  path = "/" 

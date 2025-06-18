@@ -168,6 +168,69 @@ npm start
 
 **Frontend estará rodando em:** `http://localhost:3000`
 
+## 🚀 Deploy em Produção
+
+### Opções 100% Gratuitas Recomendadas
+
+#### **Backend (Laravel) - Render** ⭐
+
+1. Acesse [render.com](https://render.com)
+2. Crie uma conta gratuita
+3. Clique em "New +" → "Web Service"
+4. Conecte seu repositório GitHub
+5. Configure:
+   - **Name:** `fisa-store-backend`
+   - **Root Directory:** `backend`
+   - **Runtime:** `PHP`
+   - **Build Command:** `composer install`
+   - **Start Command:** `php artisan serve --host=0.0.0.0 --port=$PORT`
+6. Adicione banco PostgreSQL gratuito
+7. Configure variáveis de ambiente:
+   - `APP_KEY` (gerado automaticamente)
+   - `APP_URL` (URL do Render)
+   - `DB_*` (configurações do PostgreSQL)
+8. Deploy automático!
+
+#### **Frontend (React) - Vercel**
+
+1. Acesse [vercel.com](https://vercel.com)
+2. Conecte seu repositório GitHub
+3. Selecione a pasta `frontend`
+4. Configure a variável de ambiente:
+   - `REACT_APP_API_URL` (URL do backend no Render)
+5. Deploy automático!
+
+### **Alternativas Gratuitas**
+
+#### **Backend:**
+
+- **Fly.io** - 3 VMs gratuitas, performance excelente
+- **Railway** - $5 crédito/mês (pode durar meses)
+- **Netlify Functions** - Para APIs simples
+
+#### **Frontend:**
+
+- **Netlify** - Totalmente gratuito
+- **GitHub Pages** - Totalmente gratuito
+
+#### **Banco de Dados:**
+
+- **Render PostgreSQL** - Incluído no plano gratuito
+- **Supabase** - PostgreSQL gratuito
+- **PlanetScale** - MySQL gratuito
+
+### **Configuração das URLs**
+
+Após o deploy, atualize a variável `REACT_APP_API_URL` no frontend:
+
+```env
+# Exemplo com Render
+REACT_APP_API_URL=https://fisa-store-backend.onrender.com/api
+
+# Exemplo com Fly.io
+REACT_APP_API_URL=https://fisa-store-backend.fly.dev/api
+```
+
 ## 🔧 Tecnologias Utilizadas
 
 ### Backend
