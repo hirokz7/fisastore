@@ -7,126 +7,188 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
     public function index()
     {
-        $orders = Order::with(['items.product', 'customer'])->get();
-        return response()->json($orders);
+        try {
+            $orders = Order::with(['items.product', 'customer'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+            
+            Log::info('Pedidos listados', ['total' => $orders->count()]);
+            
+            return response()->json($orders);
+            
+        } catch (\Exception $e) {
+            Log::error('Erro ao listar pedidos', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
+            return response()->json([
+                'error' => 'Erro interno do servidor',
+                'message' => 'Não foi possível listar os pedidos'
+            ], 500);
+        }
     }
 
     public function show(Order $order)
     {
-        return response()->json($order->load(['items.product', 'customer']));
+        try {
+            Log::info('Pedido consultado', ['order_id' => $order->id]);
+            
+            return response()->json($order->load(['items.product', 'customer']));
+            
+        } catch (\Exception $e) {
+            Log::error('Erro ao consultar pedido', [
+                'order_id' => $order->id ?? 'N/A',
+                'error' => $e->getMessage()
+            ]);
+            
+            return response()->json([
+                'error' => 'Erro interno do servidor',
+                'message' => 'Não foi possível consultar o pedido'
+            ], 500);
+        }
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'customer_name' => 'required|string',
-            'delivery_date' => 'required|date',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1'
-        ]);
-
         try {
-            DB::beginTransaction();
-
-            // Check stock
-            foreach ($request->items as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                if ($product->qty_stock < $item['quantity']) {
-                    return response()->json([
-                        'message' => "Product {$product->name} doesn't have enough stock. Current stock: {$product->qty_stock}"
-                    ], 400);
-                }
-            }
-
-            // Create or find customer
-            $customer = DB::table('customers')
-                ->where('name', $request->customer_name)
-                ->first();
-
-            if (!$customer) {
-                $customer = DB::table('customers')->insertGetId([
-                    'name' => $request->customer_name,
+            Log::info('Criando novo pedido', ['payload' => $request->all()]);
+            
+            // Validação dos dados
+            $validated = $request->validate([
+                'customer_name' => 'required|string|max:255',
+                'delivery_date' => 'required|date',
+                'items' => 'required|array|min:1',
+                'items.*.product_id' => 'required|integer|exists:products,id',
+                'items.*.quantity' => 'required|integer|min:1'
+            ]);
+            
+            // Buscar ou criar cliente
+            $customer = DB::table('customers')->where('name', $validated['customer_name'])->first();
+            
+            if ($customer) {
+                $customerId = $customer->id;
+                Log::info('Usando cliente existente', ['customer_id' => $customerId, 'name' => $customer->name]);
+            } else {
+                Log::info('Criando novo cliente', ['name' => $validated['customer_name']]);
+                $customerId = DB::table('customers')->insertGetId([
+                    'name' => $validated['customer_name'],
                     'created_at' => now(),
                     'updated_at' => now()
                 ]);
-            } else {
-                $customer = $customer->id;
+                Log::info('Cliente criado', ['customer_id' => $customerId]);
             }
-
-            // Calculate total value
+            
+            // Validar produtos e calcular valor total
             $totalValue = 0;
-            foreach ($request->items as $item) {
+            $itemsToProcess = [];
+            
+            foreach ($validated['items'] as $item) {
                 $product = Product::find($item['product_id']);
+                
+                if (!$product) {
+                    return response()->json(['error' => 'Produto não encontrado'], 404);
+                }
+                
+                if ($product->qty_stock < $item['quantity']) {
+                    return response()->json([
+                        'error' => "Estoque insuficiente para o produto {$product->name}. Disponível: {$product->qty_stock}"
+                    ], 400);
+                }
+                
                 $totalValue += $product->price * $item['quantity'];
+                $itemsToProcess[] = [
+                    'product' => $product,
+                    'quantity' => $item['quantity']
+                ];
             }
-
-            // Create order
+            
+            // Criar pedido
             $order = Order::create([
-                'customer_id' => $customer,
-                'delivery_date' => $request->delivery_date,
+                'customer_id' => $customerId,
+                'delivery_date' => $validated['delivery_date'],
                 'total_value' => $totalValue,
                 'status' => 'pending'
             ]);
-
-            // Create order items and update stock
-            foreach ($request->items as $item) {
-                $product = Product::find($item['product_id']);
-                
+            
+            Log::info('Pedido criado', ['order_id' => $order->id, 'total_value' => $totalValue]);
+            
+            // Criar itens do pedido e atualizar estoque
+            foreach ($itemsToProcess as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $product->id,
+                    'product_id' => $item['product']->id,
                     'quantity' => $item['quantity'],
-                    'unit_price' => $product->price
+                    'unit_price' => $item['product']->price
                 ]);
-
-                // Update stock
-                $product->update([
-                    'qty_stock' => $product->qty_stock - $item['quantity']
+                
+                // Atualizar estoque
+                $item['product']->update([
+                    'qty_stock' => $item['product']->qty_stock - $item['quantity']
+                ]);
+                
+                Log::info('Item processado', [
+                    'product_id' => $item['product']->id,
+                    'quantity' => $item['quantity'],
+                    'new_stock' => $item['product']->qty_stock - $item['quantity']
                 ]);
             }
-
-            DB::commit();
-
+            
+            Log::info('Pedido finalizado com sucesso', ['order_id' => $order->id]);
+            
             return response()->json([
-                'message' => 'Order created successfully',
-                'order' => $order->load('items.product')
+                'message' => 'Pedido criado com sucesso',
+                'order_id' => $order->id,
+                'total_value' => $totalValue
             ], 201);
-
+            
         } catch (\Exception $e) {
-            DB::rollBack();
+            Log::error('Erro ao criar pedido', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
             return response()->json([
-                'message' => 'Error creating order',
-                'error' => $e->getMessage()
+                'error' => 'Erro interno do servidor',
+                'message' => 'Não foi possível criar o pedido'
             ], 500);
         }
     }
 
     public function update(Request $request, Order $order)
     {
-        $request->validate([
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1'
-        ]);
-
         try {
-            DB::beginTransaction();
+            Log::info('Atualizando pedido', ['order_id' => $order->id]);
+            
+            $validated = $request->validate([
+                'items' => 'required|array|min:1',
+                'items.*.product_id' => 'required|exists:products,id',
+                'items.*.quantity' => 'required|integer|min:1'
+            ]);
 
-            // Check stock
-            foreach ($request->items as $item) {
-                $product = Product::findOrFail($item['product_id']);
-                $currentItem = $order->items()->where('product_id', $product->id)->first();
+            // Validação prévia de estoque e existência do produto
+            foreach ($validated['items'] as $item) {
+                $product = Product::find($item['product_id']);
+                $currentItem = $order->items()->where('product_id', $item['product_id'])->first();
                 $currentQuantity = $currentItem ? $currentItem->quantity : 0;
+                
+                if (!$product) {
+                    return response()->json([
+                        'error' => "Produto com ID {$item['product_id']} não encontrado."
+                    ], 400);
+                }
                 
                 if ($product->qty_stock + $currentQuantity < $item['quantity']) {
                     return response()->json([
-                        'message' => "Product {$product->name} doesn't have enough stock. Current stock: {$product->qty_stock}"
+                        'error' => "Estoque insuficiente para o produto {$product->name}. Disponível: {$product->qty_stock}"
                     ], 400);
                 }
             }
@@ -138,11 +200,17 @@ class OrderController extends Controller
                     'qty_stock' => $product->qty_stock + $item->quantity
                 ]);
                 $item->delete();
+                
+                Log::info('Item removido e estoque restaurado', [
+                    'product_id' => $product->id,
+                    'quantity_returned' => $item->quantity,
+                    'new_stock' => $product->qty_stock + $item->quantity
+                ]);
             }
 
             // Calculate new total value
             $totalValue = 0;
-            foreach ($request->items as $item) {
+            foreach ($validated['items'] as $item) {
                 $product = Product::find($item['product_id']);
                 $totalValue += $product->price * $item['quantity'];
             }
@@ -153,9 +221,9 @@ class OrderController extends Controller
             ]);
 
             // Create new items and update stock
-            foreach ($request->items as $item) {
+            foreach ($validated['items'] as $item) {
                 $product = Product::find($item['product_id']);
-                
+
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $product->id,
@@ -163,24 +231,38 @@ class OrderController extends Controller
                     'unit_price' => $product->price
                 ]);
 
-                // Update stock
                 $product->update([
                     'qty_stock' => $product->qty_stock - $item['quantity']
                 ]);
+                
+                Log::info('Novo item criado', [
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'new_stock' => $product->qty_stock - $item['quantity']
+                ]);
             }
 
-            DB::commit();
+            Log::info('Pedido atualizado com sucesso', [
+                'order_id' => $order->id,
+                'new_total_value' => $totalValue
+            ]);
 
             return response()->json([
-                'message' => 'Order updated successfully',
+                'message' => 'Pedido atualizado com sucesso',
                 'order' => $order->load('items.product')
             ]);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            Log::error('Erro ao atualizar pedido', [
+                'order_id' => $order->id ?? 'N/A',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
             return response()->json([
-                'message' => 'Error updating order',
-                'error' => $e->getMessage()
+                'error' => 'Erro interno do servidor',
+                'message' => 'Não foi possível atualizar o pedido'
             ], 500);
         }
     }
@@ -188,7 +270,7 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         try {
-            DB::beginTransaction();
+            Log::info('Deletando pedido', ['order_id' => $order->id]);
 
             // Return items to stock
             foreach ($order->items as $item) {
@@ -196,22 +278,34 @@ class OrderController extends Controller
                 $product->update([
                     'qty_stock' => $product->qty_stock + $item->quantity
                 ]);
+                
+                Log::info('Estoque restaurado', [
+                    'product_id' => $product->id,
+                    'quantity_returned' => $item->quantity,
+                    'new_stock' => $product->qty_stock + $item->quantity
+                ]);
             }
 
             // Remove order
             $order->delete();
 
-            DB::commit();
+            Log::info('Pedido deletado com sucesso', ['order_id' => $order->id]);
 
             return response()->json([
-                'message' => 'Order deleted successfully'
+                'message' => 'Pedido deletado com sucesso'
             ]);
 
         } catch (\Exception $e) {
-            DB::rollBack();
+            Log::error('Erro ao deletar pedido', [
+                'order_id' => $order->id ?? 'N/A',
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            
             return response()->json([
-                'message' => 'Error deleting order',
-                'error' => $e->getMessage()
+                'error' => 'Erro interno do servidor',
+                'message' => 'Não foi possível deletar o pedido'
             ], 500);
         }
     }
