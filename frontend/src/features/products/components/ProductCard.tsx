@@ -22,7 +22,6 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const { cartOpen, setCartOpen } = useCartStore();
   const items = useCartStore((state) => state.items);
   const addItem = useCartStore((state) => state.addItem);
   const isInCart = items.some((item: any) => item.id === product.id);
@@ -30,7 +29,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   const handleAddToCart = () => {
     addItem(product);
-    !cartOpen && setCartOpen(true);
   };
 
   const getStockStatus = () => {

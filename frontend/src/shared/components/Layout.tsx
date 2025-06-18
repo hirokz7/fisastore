@@ -28,7 +28,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         position: "relative",
       }}
     >
-      <Header onCartClick={() => setCartOpen(true)} />
+      <Header onCartClick={() => setCartOpen(!cartOpen)} />
       <CartSidebar
         open={cartOpen}
         onClose={() => setCartOpen(false)}
