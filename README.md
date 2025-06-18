@@ -231,6 +231,29 @@ REACT_APP_API_URL=https://fisa-store-backend.onrender.com/api
 REACT_APP_API_URL=https://fisa-store-backend.fly.dev/api
 ```
 
+## 🐳 Deploy com Docker no Render
+
+O backend está preparado para deploy em qualquer serviço que suporte Docker, como o Render.
+
+- O arquivo `backend/Dockerfile` instala todas as extensões PHP necessárias para Laravel + PostgreSQL:
+  - pdo, pdo_pgsql, pgsql, mbstring, tokenizer, xml, ctype, bcmath, zip, fileinfo
+- Basta criar um serviço Docker apontando para a pasta `backend`.
+- Não é necessário preencher Build Command ou Start Command no Render.
+- O Dockerfile já executa o `composer install` e inicia o servidor Laravel.
+
+### Exemplo de uso local:
+
+```bash
+cd backend
+# Build da imagem
+docker build -t fisastore-backend .
+# Rodar o container
+# (ajuste as variáveis de ambiente conforme seu .env)
+docker run --env-file .env -p 8000:8000 fisastore-backend
+```
+
+No Render, basta selecionar Docker como linguagem e apontar para a pasta `backend`.
+
 ## 🔧 Tecnologias Utilizadas
 
 ### Backend

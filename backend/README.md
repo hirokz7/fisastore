@@ -83,3 +83,31 @@ backend/
 6. Transações de banco de dados para garantir consistência
 7. Validação de dados
 8. Respostas em formato JSON
+
+## 🐳 Docker
+
+O backend possui um `Dockerfile` pronto para produção, que instala todas as extensões PHP necessárias para Laravel + PostgreSQL:
+
+-   pdo
+-   pdo_pgsql
+-   pgsql
+-   mbstring
+-   tokenizer
+-   xml
+-   ctype
+-   bcmath
+-   zip
+-   fileinfo
+
+### Como rodar localmente:
+
+```bash
+# Build da imagem
+cd backend
+docker build -t fisastore-backend .
+
+# Rodar o container (ajuste as variáveis de ambiente conforme seu .env)
+docker run --env-file .env -p 8000:8000 fisastore-backend
+```
+
+No Render, basta criar um serviço Docker apontando para a pasta `backend`.
