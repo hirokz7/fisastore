@@ -67,7 +67,6 @@ const CheckoutPage: React.FC = () => {
         }
       );
 
-      // Preparar dados para a página de sucesso
       const orderData = {
         orderId: response.data.id || `ORD-${Date.now()}`,
         customerName: customerName,
@@ -83,7 +82,6 @@ const CheckoutPage: React.FC = () => {
 
       clearCart();
 
-      // Redirecionar para a página de sucesso com os dados do pedido
       navigate("/order-success", { state: orderData });
     } catch (err: any) {
       if (err.response && err.response.data && err.response.data.message) {
@@ -97,7 +95,6 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  // Se não há itens no carrinho, mostrar mensagem
   if (items.length === 0) {
     return (
       <PageTransition direction="up" timeout={600}>
@@ -139,7 +136,6 @@ const CheckoutPage: React.FC = () => {
             background: `linear-gradient(135deg, ${theme.palette.primary.main}05, ${theme.palette.secondary.main}05)`,
           }}
         >
-          {/* Header */}
           <Box sx={{ textAlign: "center", mb: 4 }}>
             <Typography
               variant="h4"
@@ -168,7 +164,6 @@ const CheckoutPage: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            {/* Customer Information */}
             <Paper elevation={1} sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
                 Informações do Cliente
@@ -201,7 +196,6 @@ const CheckoutPage: React.FC = () => {
               </Grid>
             </Paper>
 
-            {/* Order Items */}
             <Paper elevation={1} sx={{ p: 3, mb: 4 }}>
               <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
                 Itens do Pedido
@@ -283,7 +277,6 @@ const CheckoutPage: React.FC = () => {
               </List>
             </Paper>
 
-            {/* Total */}
             <Paper
               elevation={2}
               sx={{
@@ -309,7 +302,6 @@ const CheckoutPage: React.FC = () => {
               </Box>
             </Paper>
 
-            {/* Submit Button */}
             <Box sx={{ textAlign: "center" }}>
               <Button
                 type="submit"

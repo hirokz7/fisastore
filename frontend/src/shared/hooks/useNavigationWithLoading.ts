@@ -12,7 +12,6 @@ export const useNavigationWithLoading = () => {
     setIsLoading(true);
     setLoadingMessage(loadingMessage);
 
-    // Simular um pequeno delay para mostrar o loading
     setTimeout(() => {
       navigate(to);
       setIsLoading(false);

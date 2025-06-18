@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Drawer,
   List,
   ListItem,
   ListItemText,
@@ -8,6 +7,7 @@ import {
   Typography,
   Button,
   Box,
+  Slide,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
@@ -34,20 +34,30 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
   const total = useCartStore((state) => state.total);
 
   return (
-    <Drawer
-      anchor="right"
-      open={open}
-      onClose={hideBackdrop ? undefined : onClose}
-      ModalProps={hideBackdrop ? { hideBackdrop: true } : {}}
-      sx={{ width: 400 }}
-    >
-      <Box sx={{ width: 400, p: 2 }}>
+    <Slide direction="left" in={open} mountOnEnter unmountOnExit>
+      <Box
+        sx={{
+          position: "fixed",
+          right: 0,
+          top: 0,
+          width: { xs: "100%", sm: 400 },
+          maxWidth: 400,
+          height: "100vh",
+          backgroundColor: "white",
+          boxShadow: "0 0 20px rgba(0,0,0,0.1)",
+          zIndex: 1200,
+          display: "flex",
+          flexDirection: "column",
+          p: 2,
+        }}
+      >
         <Box
           sx={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             mb: 2,
+            flexShrink: 0,
           }}
         >
           <Typography variant="h6">Carrinho de Compras</Typography>
@@ -56,7 +66,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           </IconButton>
         </Box>
 
-        <List>
+        <List sx={{ flex: 1, overflow: "auto" }}>
           {items.map((item: any) => (
             <ListItem
               key={item.id}
@@ -65,6 +75,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                   <DeleteIcon />
                 </IconButton>
               }
+              sx={{
+                border: "1px solid #e0e0e0",
+                borderRadius: 1,
+                mb: 1,
+                backgroundColor: "white",
+              }}
             >
               <ListItemText
                 primary={item.name}
@@ -74,13 +90,17 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
                 <IconButton
                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
+                  size="small"
                 >
                   <RemoveIcon />
                 </IconButton>
-                <Typography sx={{ mx: 1 }}>{item.quantity}</Typography>
+                <Typography sx={{ mx: 1, minWidth: 20, textAlign: "center" }}>
+                  {item.quantity}
+                </Typography>
                 <IconButton
                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
                   disabled={item.quantity >= item.qty_stock}
+                  size="small"
                 >
                   <AddIcon />
                 </IconButton>
@@ -89,7 +109,15 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           ))}
         </List>
 
-        <Box sx={{ mt: 2, p: 2, bgcolor: "grey.100" }}>
+        <Box
+          sx={{
+            mt: 2,
+            p: 2,
+            bgcolor: "grey.100",
+            borderRadius: 1,
+            flexShrink: 0,
+          }}
+        >
           <Typography variant="h6">
             Total: R$ {Number(total()).toFixed(2)}
           </Typography>
@@ -99,14 +127,14 @@ const CartSidebar: React.FC<CartSidebarProps> = ({
           variant="contained"
           color="primary"
           fullWidth
-          sx={{ mt: 2 }}
+          sx={{ mt: 2, flexShrink: 0 }}
           onClick={onCheckout}
           disabled={items.length === 0}
         >
           Fechar Compra
         </Button>
       </Box>
-    </Drawer>
+    </Slide>
   );
 };
 

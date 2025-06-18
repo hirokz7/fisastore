@@ -49,7 +49,6 @@ const HomePage: React.FC = () => {
     value: number
   ) => {
     setCurrentPage(value);
-    // Scroll to top when changing page
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -73,7 +72,6 @@ const HomePage: React.FC = () => {
   return (
     <PageTransition direction="up" timeout={600}>
       <Container maxWidth="xl">
-        {/* Header Section */}
         <Box
           sx={{
             mb: 4,
@@ -103,14 +101,12 @@ const HomePage: React.FC = () => {
           </Typography>
         </Box>
 
-        {/* Error Alert */}
         {error && (
           <Alert severity="error" sx={{ mb: 3 }}>
             {error}
           </Alert>
         )}
 
-        {/* Products Grid */}
         <Grid container spacing={3}>
           {isLoadingProducts
             ? renderProductSkeletons()
@@ -121,14 +117,12 @@ const HomePage: React.FC = () => {
               ))}
         </Grid>
 
-        {/* Loading State */}
         {isLoadingProducts && products.length === 0 && (
           <Box sx={{ mt: 4 }}>
             <LoadingSpinner message="Carregando produtos..." />
           </Box>
         )}
 
-        {/* Empty State */}
         {!isLoadingProducts && products.length === 0 && !error && (
           <Box
             sx={{
@@ -146,7 +140,6 @@ const HomePage: React.FC = () => {
           </Box>
         )}
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <Box
             sx={{

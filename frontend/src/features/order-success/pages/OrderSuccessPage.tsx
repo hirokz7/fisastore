@@ -39,7 +39,6 @@ const OrderSuccessPage: React.FC = () => {
   const location = useLocation();
   const theme = useTheme();
 
-  // Pegar os dados do pedido do state da navegação
   const orderData = location.state as OrderSuccessData;
 
   const formatDate = (dateString: string) => {
@@ -68,7 +67,6 @@ const OrderSuccessPage: React.FC = () => {
             border: `2px solid ${theme.palette.success.main}30`,
           }}
         >
-          {/* Success Icon */}
           <Box sx={{ mb: 3 }}>
             <CheckCircle
               sx={{
@@ -79,7 +77,6 @@ const OrderSuccessPage: React.FC = () => {
             />
           </Box>
 
-          {/* Success Message */}
           <Typography
             variant="h4"
             component="h1"
@@ -97,7 +94,6 @@ const OrderSuccessPage: React.FC = () => {
             Seu pedido foi processado e está sendo preparado para entrega.
           </Typography>
 
-          {/* Order Details */}
           <Paper
             elevation={1}
             sx={{
@@ -111,7 +107,6 @@ const OrderSuccessPage: React.FC = () => {
               Detalhes do Pedido
             </Typography>
 
-            {/* Customer Info */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
               <Person sx={{ mr: 1, color: theme.palette.primary.main }} />
               <Typography variant="body1">
@@ -119,7 +114,6 @@ const OrderSuccessPage: React.FC = () => {
               </Typography>
             </Box>
 
-            {/* Delivery Date */}
             <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
               <CalendarToday
                 sx={{ mr: 1, color: theme.palette.primary.main }}
@@ -132,7 +126,6 @@ const OrderSuccessPage: React.FC = () => {
               </Typography>
             </Box>
 
-            {/* Order Items */}
             <Box sx={{ mb: 3 }}>
               <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
                 <ShoppingBag
@@ -171,7 +164,6 @@ const OrderSuccessPage: React.FC = () => {
               </List>
             </Box>
 
-            {/* Total */}
             <Box
               sx={{
                 display: "flex",
@@ -190,7 +182,6 @@ const OrderSuccessPage: React.FC = () => {
             </Box>
           </Paper>
 
-          {/* Delivery Message */}
           <Box
             sx={{
               p: 3,
@@ -210,7 +201,6 @@ const OrderSuccessPage: React.FC = () => {
             </Typography>
           </Box>
 
-          {/* Order ID */}
           <Box sx={{ mb: 4 }}>
             <Typography variant="body2" color="text.secondary" gutterBottom>
               Número do Pedido:
@@ -227,7 +217,6 @@ const OrderSuccessPage: React.FC = () => {
             />
           </Box>
 
-          {/* Action Buttons */}
           <Box
             sx={{
               display: "flex",

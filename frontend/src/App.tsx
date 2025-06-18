@@ -1,4 +1,3 @@
-import React from "react";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { AppRoutes } from "./routes";
 import { Layout } from "./shared/components/Layout";

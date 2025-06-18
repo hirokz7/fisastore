@@ -19,12 +19,8 @@ import { orderService } from "../../../shared/services";
 import { useProducts } from "../../../shared/hooks";
 import { formatCurrency } from "../../../shared/utils/formatters";
 import { BRAND_COLOR, BRAND_COLOR_HOVER } from "../../../shared/constants";
-import { OrderItem, Product } from "../../../shared/types";
-import {
-  OrderFormItem,
-  OrderFormSubmitData,
-  OrderFormValues,
-} from "../types/form";
+import { OrderItem } from "../../../shared/types";
+import { OrderFormSubmitData } from "../types/form";
 
 const schema = yup.object().shape({
   customer_name: yup.string().required("Nome do cliente é obrigatório"),
@@ -50,17 +46,7 @@ type OrderFormSchema = yup.InferType<typeof schema>;
 export const OrderForm: React.FC = () => {
   const [error, setError] = useState<string>("");
   const { products, loading, error: productsError } = useProducts();
-  const {
-    order,
-    items,
-    setOrder,
-    addItem,
-    removeItem,
-    updateItem,
-    clearOrder,
-    calculateTotal,
-    setItems,
-  } = useOrderStore();
+  const { clearOrder, calculateTotal, setItems } = useOrderStore();
 
   const {
     register,
@@ -83,13 +69,11 @@ export const OrderForm: React.FC = () => {
     name: "items",
   });
 
-  // Observar mudanças nos itens do formulário
   const watchItems = watch("items");
 
   useEffect(() => {
     if (!watchItems?.length) return;
 
-    // Atualizar a store quando os itens do formulário mudarem
     const updatedItems: OrderItem[] = watchItems.map((item) => {
       const product = products.find((p) => p.id === item.product_id);
       return {
@@ -127,7 +111,6 @@ export const OrderForm: React.FC = () => {
 
   const onSubmit: SubmitHandler<OrderFormSchema> = async (data) => {
     try {
-      // Validar quantidade de estoque
       for (const item of data.items) {
         const validation = validateQuantity(item.product_id, item.quantity);
         if (validation !== true) {

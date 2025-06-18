@@ -25,6 +25,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         flexDirection: "column",
         minHeight: "100vh",
         backgroundColor: "black",
+        position: "relative",
       }}
     >
       <Header onCartClick={() => setCartOpen(true)} />
@@ -36,7 +37,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       />
       <Container
         component="main"
-        sx={{ flex: 1, py: 4, backgroundColor: "white" }}
+        sx={{
+          flex: 1,
+          py: 4,
+          backgroundColor: "white",
+          position: "relative",
+          zIndex: 1,
+          pointerEvents: "auto",
+        }}
       >
         {children}
       </Container>
