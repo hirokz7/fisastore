@@ -1,3 +1,4 @@
+# Etapa 1: Instala dependências do PHP e Composer
 FROM composer:2.7 as vendor
 
 WORKDIR /app
@@ -9,7 +10,7 @@ FROM php:8.2-cli
 
 # Instala extensões do PostgreSQL e outras dependências comuns do Laravel
 RUN apt-get update \
-    && apt-get install -y libpq-dev unzip git zlib1g-dev libzip-dev libpng-dev libssl-dev \
+    && apt-get install -y libpq-dev unzip git zlib1g-dev libzip-dev libpng-dev libssl-dev libonig-dev pkg-config \
     && docker-php-ext-configure zip \
     && docker-php-ext-install pdo pdo_pgsql pgsql mbstring xml bcmath zip
 
