@@ -101,7 +101,7 @@ frontend/src/
 #### 1. **Clone o Repositório**
 
 ```bash
-git clone [https://github.com/hirokz7/fisastore]
+git clone https://github.com/hirokz7/fisastore
 cd fisacorp
 ```
 
@@ -332,9 +332,9 @@ REACT_APP_API_URL=https://fisa-store-backend.fly.dev/api
 
 ### Contato
 
-- **Email:** [hiro1kz77@gmail.com]
-- **LinkedIn:** [https://www.linkedin.com/in/carloslima-hkz7/]
-- **GitHub:** [https://github.com/hirokz7]
+- **Email:** hiro1kz77@gmail.com
+- **LinkedIn:** https://www.linkedin.com/in/carloslima-hkz7/
+- **GitHub:** https://github.com/hirokz7/
 
 ---
 
