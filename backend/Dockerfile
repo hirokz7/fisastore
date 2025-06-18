@@ -11,7 +11,7 @@ FROM php:8.2-cli
 # Instala extensões do PostgreSQL e outras dependências comuns do Laravel
 RUN apt-get update \
     && apt-get install -y libpq-dev unzip git zlib1g-dev libzip-dev libpng-dev \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring tokenizer xml ctype bcmath zip fileinfo
+    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring xml bcmath zip
 
 WORKDIR /app
 COPY --from=vendor /app /app
